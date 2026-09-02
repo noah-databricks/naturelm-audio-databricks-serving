@@ -1,0 +1,7 @@
+resources:
+  registered_models:
+    naturelm_model:
+      catalog_name: ${var.catalog}
+      schema_name: ${var.schema}
+      name: ${var.model_name}
+      comment: Offline NatureLM-audio MLflow model packaged from governed NatureLM and Llama Volume snapshots.

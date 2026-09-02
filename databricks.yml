@@ -1,0 +1,60 @@
+bundle:
+  name: naturelm-customer-serving
+
+include:
+  - resources/*.yml
+
+sync:
+  include:
+    - src/**
+
+variables:
+  catalog:
+    description: Existing Unity Catalog catalog.
+    default: YOUR_CATALOG
+  schema:
+    description: Existing Unity Catalog schema where the registered model will live.
+    default: YOUR_SCHEMA
+  naturelm_model_path:
+    description: Existing /Volumes/... directory containing EarthSpeciesProject/NatureLM-audio.
+    default: /Volumes/YOUR_CATALOG/YOUR_SCHEMA/YOUR_VOLUME/naturelm_audio
+  llama_model_path:
+    description: Existing /Volumes/... directory containing the authorized Meta Llama 3.1 8B Instruct snapshot.
+    default: /Volumes/YOUR_CATALOG/YOUR_SCHEMA/YOUR_VOLUME/llama_3_1_8b_instruct
+  validation_naturelm_repo_id:
+    description: Internal validation download only. Leave empty for customer deployment.
+    default: ""
+  validation_naturelm_revision:
+    description: Immutable NatureLM Hugging Face commit for internal validation.
+    default: ""
+  validation_llama_repo_id:
+    description: Internal validation download only. Leave empty for customer deployment.
+    default: ""
+  validation_llama_revision:
+    description: Immutable Llama Hugging Face commit for internal validation.
+    default: ""
+  model_name:
+    description: Unity Catalog registered model name without catalog or schema.
+    default: naturelm_audio
+  endpoint_name:
+    description: Databricks Model Serving endpoint name.
+    default: naturelm-audio-serving
+  workload_type:
+    description: GPU_SMALL, GPU_MEDIUM, MULTIGPU_MEDIUM, GPU_MEDIUM_8, or a region-supported type.
+    default: GPU_MEDIUM
+  workload_size:
+    description: Endpoint concurrency size.
+    default: Small
+  max_audio_seconds:
+    description: Maximum decoded audio duration accepted per request.
+    default: "60"
+  max_new_tokens:
+    description: Maximum generated tokens per ten-second audio window.
+    default: "64"
+
+targets:
+  customer:
+    default: true
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

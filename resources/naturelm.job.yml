@@ -1,0 +1,84 @@
+resources:
+  jobs:
+    prepare_and_register:
+      name: "[${bundle.target}] NatureLM - prepare and register"
+      description: Validate both Volume snapshots and register one offline NatureLM-audio MLflow model.
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+        - name: model_name
+          default: ${var.model_name}
+        - name: naturelm_model_path
+          default: ${var.naturelm_model_path}
+        - name: llama_model_path
+          default: ${var.llama_model_path}
+        - name: validation_naturelm_repo_id
+          default: ${var.validation_naturelm_repo_id}
+        - name: validation_naturelm_revision
+          default: ${var.validation_naturelm_revision}
+        - name: validation_llama_repo_id
+          default: ${var.validation_llama_repo_id}
+        - name: validation_llama_revision
+          default: ${var.validation_llama_revision}
+        - name: max_audio_seconds
+          default: ${var.max_audio_seconds}
+        - name: max_new_tokens
+          default: ${var.max_new_tokens}
+        - name: experiment_id
+          default: ${resources.experiments.naturelm_experiment.id}
+        - name: model_code_path
+          default: ${workspace.file_path}/src/model/naturelm_pyfunc.py
+        - name: naturelm_code_path
+          default: ${workspace.file_path}/src/vendor/NatureLM
+        - name: bert_config_path
+          default: ${workspace.file_path}/src/model/bert_config.json
+        - name: inference_config_path
+          default: ${workspace.file_path}/src/model/inference.yml
+      tasks:
+        - task_key: dependency_preflight
+          notebook_task:
+            notebook_path: ../src/notebooks/00_dependency_preflight.py
+            base_parameters:
+              naturelm_code_path: ${workspace.file_path}/src/vendor/NatureLM
+          environment_key: model_imports
+          timeout_seconds: 1800
+        - task_key: prepare_and_register
+          depends_on:
+            - task_key: dependency_preflight
+          notebook_task:
+            notebook_path: ../src/notebooks/01_prepare_and_register.py
+          environment_key: packaging
+          timeout_seconds: 7200
+      environments:
+        - environment_key: model_imports
+          spec:
+            client: "4"
+            dependencies:
+              - torch==2.7.1
+              - torchaudio==2.7.1
+              - torchvision==0.22.1
+              - transformers[sentencepiece]==4.57.3
+              - accelerate==1.12.0
+              - safetensors==0.7.0
+              - huggingface-hub==0.36.0
+              - peft==0.17.1
+              - pandas==2.3.3
+              - numpy==2.2.6
+              - scipy==1.15.3
+              - soundfile==0.13.1
+              - resampy==0.4.3
+              - pydantic==2.12.5
+              - pydantic-settings==2.12.0
+              - PyYAML==6.0.3
+              - cloudpathlib[gs]==0.23.0
+        - environment_key: packaging
+          spec:
+            client: "4"
+            dependencies:
+              - mlflow>=3.1,<4
+              - huggingface_hub>=0.34,<2
+              - safetensors>=0.5,<1
+              - pandas>=2,<3
+      max_concurrent_runs: 1

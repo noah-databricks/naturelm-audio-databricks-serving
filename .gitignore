@@ -1,0 +1,6 @@
+__pycache__/
+.databricks/
+.pytest_cache/
+*.pyc
+*.zip
+

@@ -1,0 +1,40 @@
+resources:
+  jobs:
+    deploy_and_validate:
+      name: "[${bundle.target}] NatureLM - deploy and validate"
+      description: Explicitly deploy the registered @prod model to GPU Model Serving and run smoke tests.
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+        - name: model_name
+          default: ${var.model_name}
+        - name: endpoint_name
+          default: ${var.endpoint_name}
+        - name: workload_type
+          default: ${var.workload_type}
+        - name: workload_size
+          default: ${var.workload_size}
+        - name: confirm_deploy
+          default: "NO"
+        - name: smoke_test_audio_base64_path
+          default: ${workspace.file_path}/src/testdata/nri-GreenTreeFrogEvergladesNP.mp3.b64
+        - name: smoke_test_query
+          default: "What is the common name for the focal species in the audio? Answer:"
+        - name: expected_answer_substring
+          default: Green Treefrog
+      tasks:
+        - task_key: deploy_and_validate
+          notebook_task:
+            notebook_path: ../src/notebooks/02_deploy_and_validate.py
+          environment_key: deployment
+          timeout_seconds: 5400
+      environments:
+        - environment_key: deployment
+          spec:
+            client: "4"
+            dependencies:
+              - mlflow>=3.1,<4
+              - databricks-sdk>=0.72,<1
+      max_concurrent_runs: 1

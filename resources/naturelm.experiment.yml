@@ -1,0 +1,4 @@
+resources:
+  experiments:
+    naturelm_experiment:
+      name: ${workspace.root_path}/naturelm_experiment
